@@ -16,17 +16,21 @@ class ProductItem extends StatelessWidget {
         child: GestureDetector(
           child: Image.network(product.imageUrl, fit: BoxFit.cover),
           onTap: () {
-            Navigator.of(context).pushNamed(ProductDetailsScreen.routeName, arguments: product.id);
+            Navigator.of(context).pushNamed(ProductDetailsScreen.routeName,
+                arguments: product.id);
           },
         ),
         footer: GridTileBar(
           backgroundColor: Colors.black87,
           leading: IconButton(
-              icon: Icon(
-                Icons.favorite,
-                color: Theme.of(context).accentColor,
-              ),
-              onPressed: () {}),
+            icon: Icon(
+              product.isFavorite 
+                ? Icons.favorite
+                : Icons.favorite_border,
+              color: Theme.of(context).accentColor,
+            ),
+            onPressed: product.toggleFavoriteStatus,
+          ),
           title: Text(
             product.title,
             textAlign: TextAlign.center,
