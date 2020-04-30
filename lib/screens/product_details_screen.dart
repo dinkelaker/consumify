@@ -12,7 +12,7 @@ class ProductDetailsScreen extends StatelessWidget {
         title: Text('Title'),
       ),
       body: Container(),
-    );;
+    );
   }
 
 }

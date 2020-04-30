@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/product.dart';
-import '../widgets/product_item.dart';
+
+import '../widgets/products_grid.dart';
 
 class ProductsOverviewScreen extends StatelessWidget {
   static const PRODUCTS = [
@@ -39,24 +40,13 @@ class ProductsOverviewScreen extends StatelessWidget {
     ),
   ];
 
-  final List<Product> _loadedProducts = PRODUCTS.toList();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text('Consumify'),
         ),
-        body: GridView.builder(
-          padding: const EdgeInsets.all(10),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 3 / 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemBuilder: (ctxt, index) => ProductItem(_loadedProducts[index].id, _loadedProducts[index].title, _loadedProducts[index].imageUrl),
-          itemCount: _loadedProducts.length,
-        ));
+        body: ProductGrid());
   }
 }
+
