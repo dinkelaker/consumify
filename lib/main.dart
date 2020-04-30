@@ -12,7 +12,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
+    return ChangeNotifierProvider(
+      create: (_) => Products(),
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -25,7 +26,6 @@ class MyApp extends StatelessWidget {
           ProductDetailsScreen.routeName: (ctxt) => ProductDetailsScreen(),
         },
       ),
-      value: Products(),
     );
   }
 }
