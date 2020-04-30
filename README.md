@@ -1,6 +1,6 @@
 # consumify
 
-A new Flutter project.
+A new Flutter project for a simple shopping cart system.
 
 ## Getting Started
 
