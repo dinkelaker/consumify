@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 
-class Product {
+class Product with ChangeNotifier {
   final String id;
   final String title;
   final String description;
   final double price;
   final String imageUrl;
-  final bool isFavorite = false;
+  bool isFavorite = false;
 
-  const Product({
+  Product({
     @required this.id,
     @required this.title,
     @required this.description,
