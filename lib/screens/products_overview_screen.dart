@@ -5,12 +5,16 @@ import '../providers/products.dart';
 
 import '../widgets/products_grid.dart';
 
-enum FilterOptions {
-  Favorites,
-  All
+enum FilterOptions { Favorites, All }
+
+class ProductsOverviewScreen extends StatefulWidget {
+  @override
+  _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
 }
 
-class ProductsOverviewScreen extends StatelessWidget {
+class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
+  bool _showOnlyFavorites = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,13 +23,15 @@ class ProductsOverviewScreen extends StatelessWidget {
           actions: <Widget>[
             PopupMenuButton(
               onSelected: (FilterOptions value) {
-                final products = Provider.of<Products>(context);
-                switch (value) {
-                  case FilterOptions.Favorites: 
-                    products.showFavoritesOnly(); break;
-                  default: 
-                    products.showAll();
-                }
+                setState(() {
+                  switch (value) {
+                    case FilterOptions.Favorites:
+                      _showOnlyFavorites = true;
+                      break;
+                    default:
+                      _showOnlyFavorites = false;
+                  }
+                });
               },
               icon: Icon(
                 Icons.more_vert,
@@ -43,6 +49,6 @@ class ProductsOverviewScreen extends StatelessWidget {
             )
           ],
         ),
-        body: ProductGrid());
+        body: ProductGrid(_showOnlyFavorites));
   }
 }
