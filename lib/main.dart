@@ -1,3 +1,4 @@
+import 'package:consumify/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +33,7 @@ class ConsumifyApp extends StatelessWidget {
         routes: {
           ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
           CartScreen.routeName: (_) => CartScreen(),
+          OrdersScreen.routeName: (_) => OrdersScreen(),
         },
       ),
     );

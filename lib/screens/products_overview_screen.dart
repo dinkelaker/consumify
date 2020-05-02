@@ -5,6 +5,7 @@ import '../providers/cart.dart';
 
 import '../screens/cart_screen.dart';
 
+import '../widgets/app_drawer.dart';
 import '../widgets/badge.dart';
 import '../widgets/products_grid.dart';
 
@@ -21,51 +22,53 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Consumify'),
-          actions: <Widget>[
-            PopupMenuButton(
-              onSelected: (FilterOptions value) {
-                setState(() {
-                  switch (value) {
-                    case FilterOptions.Favorites:
-                      _showOnlyFavorites = true;
-                      break;
-                    default:
-                      _showOnlyFavorites = false;
-                  }
-                });
-              },
+      appBar: AppBar(
+        title: Text('Consumify'),
+        actions: <Widget>[
+          PopupMenuButton(
+            onSelected: (FilterOptions value) {
+              setState(() {
+                switch (value) {
+                  case FilterOptions.Favorites:
+                    _showOnlyFavorites = true;
+                    break;
+                  default:
+                    _showOnlyFavorites = false;
+                }
+              });
+            },
+            icon: Icon(
+              Icons.more_vert,
+            ),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                child: Text('Only Favorites'),
+                value: FilterOptions.Favorites,
+              ),
+              PopupMenuItem(
+                child: Text('All'),
+                value: FilterOptions.All,
+              ),
+            ],
+          ),
+          Consumer<Cart>(
+            builder: (_, cartData, child) => Badge(
+              child: child,
+              value: cartData.itemCount.toString(),
+            ),
+            child: IconButton(
               icon: Icon(
-                Icons.more_vert,
+                Icons.shopping_cart,
               ),
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  child: Text('Only Favorites'),
-                  value: FilterOptions.Favorites,
-                ),
-                PopupMenuItem(
-                  child: Text('All'),
-                  value: FilterOptions.All,
-                ),
-              ],
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routeName);
+              },
             ),
-            Consumer<Cart>(
-              builder: (_, cartData, child) => Badge(
-                child: child,
-                value: cartData.itemCount.toString(),
-              ),
-              child: IconButton(
-                icon: Icon(
-                  Icons.shopping_cart,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pushNamed(CartScreen.routeName);
-                },
-              ),
-            ),
-          ],
-        ),
-        body: ProductGrid(_showOnlyFavorites));
+          ),
+        ],
+      ),
+      body: ProductGrid(_showOnlyFavorites),
+      drawer: AppDrawer(),
+    );
   }
 }
