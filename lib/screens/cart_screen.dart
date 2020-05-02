@@ -9,7 +9,6 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cardData;
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Cart'),
