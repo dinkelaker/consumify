@@ -39,7 +39,23 @@ class ProductItem extends StatelessWidget {
           trailing: Consumer<Cart>(
             builder: (_, cartData, child) => IconButton(
               icon: child,
-              onPressed: () => cartData.addItem(product.id, product.price, product.title),
+              onPressed: () {
+                cartData.addItem(product.id, product.price, product.title);
+                // Before showing new SnackBar hide old SnackBars.
+                Scaffold.of(context).hideCurrentSnackBar(); 
+                // Access nearest scaffold in widget tree outside of this widget to show SnackBar.
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Added "${product.title}" item to cart!'),
+                      duration: Duration(seconds: 2),
+                      action: SnackBarAction(
+                        label: 'UNDO',
+                        onPressed: () {
+                          cartData.removeSingleItem(product.id);
+                        },
+                      )),
+                );
+              },
             ),
             child: Icon(
               Icons.add_shopping_cart,
