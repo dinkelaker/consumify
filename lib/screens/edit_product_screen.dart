@@ -124,4 +124,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       });
     }
   }
+
+  @override
+  void dispose() {
+    _priceFocusNode.dispose();
+    _descriptionFocusNode.dispose();
+    _imageFocusNode.dispose();
+    _imageUrlController.dispose();
+    super.dispose();
+  }
 }
