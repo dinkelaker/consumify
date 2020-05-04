@@ -51,7 +51,24 @@ class Products with ChangeNotifier {
   }
 
   void addProduct(Product item) {
-    _items.add(item);
+    _items.add(Product(
+      id: DateTime.now().toString(),
+      title: item.title,
+      description: item.description,
+      price: item.price,
+      imageUrl: item.imageUrl,
+      isFavorite: item.isFavorite,
+    ));
     notifyListeners();
+  }
+
+  void updateProduct(String id, Product updatedProduct) {
+    final prodIndex = _items.indexWhere((prod) => prod.id == id);
+    if (prodIndex >= 0) {
+      _items[prodIndex] = updatedProduct;
+      notifyListeners();
+    } else {
+      throw new Exception("Illegal state: not reachable.");
+    }
   }
 }

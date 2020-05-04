@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
+import '../providers/products.dart';
 
 import '../widgets/app_drawer.dart';
 
@@ -21,12 +23,41 @@ class _EditProductScreenState extends State<EditProductScreen> {
   var _editedProduct =
       Product(id: null, title: '', price: 0, description: '', imageUrl: '');
 
+  var _initialValues = {
+    'title': '',
+    'price': '',
+    'description': '',
+    'imageUrl': '',
+  };
+  var _initialValuesSet = false;
+
   @override
   void initState() {
     // register listener to execute _updateImageUrl
     // whenever loosing focus of imageUrl field
     _imageFocusNode.addListener(_updateImageUrl);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (!_initialValuesSet) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _editedProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
+
+        _initialValues = {
+          'title': _editedProduct.title,
+          'price': _editedProduct.price.toString(),
+          'description': _editedProduct.description,
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+        _initialValuesSet = true;
+      }
+    }
+    super.didChangeDependencies();
   }
 
   @override
@@ -51,6 +82,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  initialValue: _initialValues['title'],
                   decoration: InputDecoration(
                     labelText: 'Title',
                   ),
@@ -70,10 +102,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       description: _editedProduct.description,
                       price: _editedProduct.price,
                       imageUrl: _editedProduct.imageUrl,
+                      isFavorite: _editedProduct.isFavorite,
                     );
                   },
                 ),
                 TextFormField(
+                  initialValue: _initialValues['price'],
                   decoration: InputDecoration(
                     labelText: 'Price',
                   ),
@@ -97,12 +131,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       description: _editedProduct.description,
                       price: double.parse(value),
                       imageUrl: _editedProduct.imageUrl,
+                      isFavorite: _editedProduct.isFavorite,
                     );
                   },
                   keyboardType: TextInputType.number,
                   focusNode: _priceFocusNode,
                 ),
                 TextFormField(
+                  initialValue: _initialValues['description'],
                   decoration: InputDecoration(
                     labelText: 'Description',
                   ),
@@ -126,6 +162,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       description: value,
                       price: _editedProduct.price,
                       imageUrl: _editedProduct.imageUrl,
+                      isFavorite: _editedProduct.isFavorite,
                     );
                   },
                   focusNode: _descriptionFocusNode,
@@ -154,6 +191,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
+                        //initialValue: not allowed since this field uses a controller,
                         decoration: InputDecoration(
                           labelText: 'Image URL',
                         ),
@@ -168,9 +206,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           if (!value.startsWith('http') &&
                               !value.startsWith('https'))
                             return 'Please provide a valid url.';
-                          if (!value.endsWith('.jpg') && 
-                              !value.endsWith('.jpeg') && 
-                              !value.endsWith('.png') && 
+                          if (!value.endsWith('.jpg') &&
+                              !value.endsWith('.jpeg') &&
+                              !value.endsWith('.png') &&
                               !value.endsWith('.gif'))
                             return 'Please provide a valid image format.';
                           return null;
@@ -182,6 +220,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             description: _editedProduct.description,
                             price: _editedProduct.price,
                             imageUrl: value,
+                            isFavorite: _editedProduct.isFavorite,
                           );
                         },
                         controller: _imageUrlController,
@@ -227,10 +266,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     // we can save the form via its global key
     _formGlobalKey.currentState.save();
-    print(_editedProduct.id);
-    print(_editedProduct.title);
-    print(_editedProduct.price);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);
+    // print(_editedProduct.id);
+    // print(_editedProduct.title);
+    // print(_editedProduct.price);
+    // print(_editedProduct.description);
+    // print(_editedProduct.imageUrl);
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false).updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    }
+    Navigator.of(context).pop();
   }
 }
