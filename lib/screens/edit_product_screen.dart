@@ -59,6 +59,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     // when this input is submitted, go to Price input
                     FocusScope.of(context).requestFocus(_priceFocusNode);
                   },
+                  validator: (value) {
+                    if (value.isEmpty) return 'Please provide a tile.';
+                    return null;
+                  },
                   onSaved: (value) {
                     _editedProduct = Product(
                       id: _editedProduct.id,
@@ -77,6 +81,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (_) {
                     // when this input is submitted, go to Price input
                     FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) return 'Please provide a price.';
+                    double price = double.tryParse(value);
+                    if (price == null) return 'Please enter a number.';
+                    if (price <= 0)
+                      return 'Please enter a number greater than 0.';
+                    return null;
                   },
                   onSaved: (value) {
                     _editedProduct = Product(
@@ -100,6 +112,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (_) {
                     // when this input is submitted, go to Price input
                     FocusScope.of(context).requestFocus(_imageFocusNode);
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) return 'Please provide a description';
+                    if (value.length < 10)
+                      return 'Please enter at least 10 characters.';
+                    return null;
                   },
                   onSaved: (value) {
                     _editedProduct = Product(
@@ -144,6 +162,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         onFieldSubmitted: (_) {
                           _saveForm();
                         },
+                        validator: (value) {
+                          if (value.isEmpty)
+                            return 'Please provide a url for an image.';
+                          if (!value.startsWith('http') &&
+                              !value.startsWith('https'))
+                            return 'Please provide a valid url.';
+                          if (!value.endsWith('.jpg') && 
+                              !value.endsWith('.jpeg') && 
+                              !value.endsWith('.png') && 
+                              !value.endsWith('.gif'))
+                            return 'Please provide a valid image format.';
+                          return null;
+                        },
                         onSaved: (value) {
                           _editedProduct = Product(
                             id: _editedProduct.id,
@@ -169,12 +200,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _updateImageUrl() {
-    //this listener will only be called if imageUrl field had focus
+    // this listener will only be called if imageUrl field had focus
     if (!_imageFocusNode.hasFocus) {
-      //but only when we lost focus, we need to update
+      // but only when we lost focus, we need to update
       setState(() {
-        //we do not need to update state
-        //since we know that the state updated
+        // we do not need to update state
+        // since we know that the state updated
       });
     }
   }
@@ -190,6 +221,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _saveForm() {
+    // only save form if valid
+    final isValid = _formGlobalKey.currentState.validate();
+    if (!isValid) return;
+
     // we can save the form via its global key
     _formGlobalKey.currentState.save();
     print(_editedProduct.id);
