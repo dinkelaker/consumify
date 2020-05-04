@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 import '../providers/product.dart';
 
@@ -51,14 +54,27 @@ class Products with ChangeNotifier {
   }
 
   void addProduct(Product item) {
-    _items.add(Product(
+    const url = 'https://consumify-app.firebaseio.com/products.json';
+    http.post(
+      url,
+      body: json.encode({
+        'title': item.title,
+        'description': item.description,
+        'imageUrl': item.imageUrl,
+        'price': item.price,
+        'isFavorite': item.isFavorite,
+      }),
+    );
+
+    final newProduct = Product(
       id: DateTime.now().toString(),
       title: item.title,
       description: item.description,
       price: item.price,
       imageUrl: item.imageUrl,
       isFavorite: item.isFavorite,
-    ));
+    );
+    _items.add(newProduct);
     notifyListeners();
   }
 
@@ -70,5 +86,10 @@ class Products with ChangeNotifier {
     } else {
       throw new Exception("Illegal state: not reachable.");
     }
+  }
+
+  void removeProduct(String id) {
+    _items.removeWhere((prod) => prod.id == id);
+    notifyListeners();
   }
 }
