@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../providers/product.dart';
+
 import '../widgets/app_drawer.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -15,9 +17,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
 
+  final _formGlobalKey = GlobalKey<FormState>();
+  var _editedProduct =
+      Product(id: null, title: '', price: 0, description: '', imageUrl: '');
+
   @override
   void initState() {
-    // register listener to execute _updateImageUrl 
+    // register listener to execute _updateImageUrl
     // whenever loosing focus of imageUrl field
     _imageFocusNode.addListener(_updateImageUrl);
     super.initState();
@@ -30,10 +36,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
         title: Text(
           'Edit Product',
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.disc_full),
+            onPressed: _saveForm,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
+          key: _formGlobalKey,
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -46,6 +59,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     // when this input is submitted, go to Price input
                     FocusScope.of(context).requestFocus(_priceFocusNode);
                   },
+                  onSaved: (value) {
+                    _editedProduct = Product(
+                      id: _editedProduct.id,
+                      title: value,
+                      description: _editedProduct.description,
+                      price: _editedProduct.price,
+                      imageUrl: _editedProduct.imageUrl,
+                    );
+                  },
                 ),
                 TextFormField(
                   decoration: InputDecoration(
@@ -55,6 +77,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (_) {
                     // when this input is submitted, go to Price input
                     FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                  },
+                  onSaved: (value) {
+                    _editedProduct = Product(
+                      id: _editedProduct.id,
+                      title: _editedProduct.title,
+                      description: _editedProduct.description,
+                      price: double.parse(value),
+                      imageUrl: _editedProduct.imageUrl,
+                    );
                   },
                   keyboardType: TextInputType.number,
                   focusNode: _priceFocusNode,
@@ -69,6 +100,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   onFieldSubmitted: (_) {
                     // when this input is submitted, go to Price input
                     FocusScope.of(context).requestFocus(_imageFocusNode);
+                  },
+                  onSaved: (value) {
+                    _editedProduct = Product(
+                      id: _editedProduct.id,
+                      title: _editedProduct.title,
+                      description: value,
+                      price: _editedProduct.price,
+                      imageUrl: _editedProduct.imageUrl,
+                    );
                   },
                   focusNode: _descriptionFocusNode,
                 ),
@@ -101,6 +141,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         ),
                         textInputAction: TextInputAction.done,
                         keyboardType: TextInputType.url,
+                        onFieldSubmitted: (_) {
+                          _saveForm();
+                        },
+                        onSaved: (value) {
+                          _editedProduct = Product(
+                            id: _editedProduct.id,
+                            title: _editedProduct.title,
+                            description: _editedProduct.description,
+                            price: _editedProduct.price,
+                            imageUrl: value,
+                          );
+                        },
                         controller: _imageUrlController,
                         focusNode: _imageFocusNode,
                       ),
@@ -118,10 +170,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     //this listener will only be called if imageUrl field had focus
-    if(!_imageFocusNode.hasFocus) {
+    if (!_imageFocusNode.hasFocus) {
       //but only when we lost focus, we need to update
       setState(() {
-        //we do not need to update state 
+        //we do not need to update state
         //since we know that the state updated
       });
     }
@@ -135,5 +187,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _imageFocusNode.dispose();
     _imageUrlController.dispose();
     super.dispose();
+  }
+
+  void _saveForm() {
+    // we can save the form via its global key
+    _formGlobalKey.currentState.save();
+    print(_editedProduct.id);
+    print(_editedProduct.title);
+    print(_editedProduct.price);
+    print(_editedProduct.description);
+    print(_editedProduct.imageUrl);
   }
 }
