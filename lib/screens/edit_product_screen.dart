@@ -17,6 +17,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void initState() {
+    // register listener to execute _updateImageUrl 
+    // whenever loosing focus of imageUrl field
     _imageFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
@@ -127,6 +129,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void dispose() {
+    print("Disposing focus nodes and controller for edit product form");
     _priceFocusNode.dispose();
     _descriptionFocusNode.dispose();
     _imageFocusNode.dispose();
