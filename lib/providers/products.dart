@@ -53,9 +53,9 @@ class Products with ChangeNotifier {
     return _items.firstWhere((item) => item.id == productId);
   }
 
-  void addProduct(Product item) {
-    const url = 'https://consumify-app.firebaseio.com/products.json';
-    http
+  Future<void> addProduct(Product item) {
+    const url = 'https://consumify-app.firebaseio.com/products';
+    return http
         .post(
       url,
       body: json.encode({
@@ -78,6 +78,10 @@ class Products with ChangeNotifier {
       );
       _items.add(newProduct);
       notifyListeners();
+    })
+    .catchError((error){
+      print('Caught an error inside future: $error');
+      throw error;
     });
   }
 
