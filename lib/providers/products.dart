@@ -57,27 +57,28 @@ class Products with ChangeNotifier {
     const url = 'https://consumify-app.firebaseio.com/products.json';
     http
         .post(
-          url,
-          body: json.encode({
-            'title': item.title,
-            'description': item.description,
-            'imageUrl': item.imageUrl,
-            'price': item.price,
-            'isFavorite': item.isFavorite,
-          }),
-        )
+      url,
+      body: json.encode({
+        'title': item.title,
+        'description': item.description,
+        'imageUrl': item.imageUrl,
+        'price': item.price,
+        'isFavorite': item.isFavorite,
+      }),
+    )
         .then((response) {
-          final newProduct = Product(
-            id: DateTime.now().toString(),
-            title: item.title,
-            description: item.description,
-            price: item.price,
-            imageUrl: item.imageUrl,
-            isFavorite: item.isFavorite,
-          );
-          _items.add(newProduct);
-          notifyListeners();
-        });
+      final productId = json.decode(response.body)['name'];
+      final newProduct = Product(
+        id: productId,
+        title: item.title,
+        description: item.description,
+        price: item.price,
+        imageUrl: item.imageUrl,
+        isFavorite: item.isFavorite,
+      );
+      _items.add(newProduct);
+      notifyListeners();
+    });
   }
 
   void updateProduct(String id, Product updatedProduct) {
