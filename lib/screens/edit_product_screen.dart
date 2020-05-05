@@ -301,13 +301,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
             title: Text('An error occurred on the backend'),
             content: Text('Error: $error'),
             actions: <Widget>[
-              FlatButton(child: Text('OK'), onPressed: () {
-                Navigator.of(context).pop();
-                //throw Exception('Skip closing form');
-              })
+              FlatButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    //throw Exception('Skip closing form');
+                  })
             ],
           ),
-        ).then((_) { return; });
+        ).then((_) {
+          // the error handler must return void to fulfill 
+          // the outer return type 
+          return;
+        });
       }).then((result) {
         print('accepting');
         setState(() {

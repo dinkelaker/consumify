@@ -54,7 +54,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product item) {
-    const url = 'https://consumify-app.firebaseio.com/products';
+    const url = 'https://consumify-app.firebaseio.com/products.json';
     return http
         .post(
       url,
