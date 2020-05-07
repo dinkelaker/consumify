@@ -19,16 +19,17 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavorites = false;
+  bool _isDataFetchedFromServer = false;
 
   @override
-  void initState() {
-    // Hack workaround the problem that we cannot access Provider.of() in initState
-    // (since then we would receive an error "dependOnInherited...() called before constructuor/initState completed.")
-    // by delaying the call for zero duration that schedules it right after the initState finishes.
-    Future.delayed(Duration.zero).then((_) {
+  void didChangeDependencies() {
+    // Only fetch data once, since didChangeDependencies is called multiple times 
+    // whenever widget tree must be rerendered.
+    if (!_isDataFetchedFromServer) {
       Provider.of<Products>(context).fetchAndSetProducts();
-    });
-    super.initState();
+      _isDataFetchedFromServer = true;
+    }
+    super.didChangeDependencies();
   }
 
   @override
