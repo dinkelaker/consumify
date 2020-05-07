@@ -20,13 +20,21 @@ class ProductsOverviewScreen extends StatefulWidget {
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavorites = false;
   bool _isDataFetchedFromServer = false;
+  bool _isLoading = true;
 
   @override
   void didChangeDependencies() {
-    // Only fetch data once, since didChangeDependencies is called multiple times 
+    // Only fetch data once, since didChangeDependencies is called multiple times
     // whenever widget tree must be rerendered.
     if (!_isDataFetchedFromServer) {
-      Provider.of<Products>(context).fetchAndSetProducts();
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<Products>(context).fetchAndSetProducts().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
       _isDataFetchedFromServer = true;
     }
     super.didChangeDependencies();
@@ -80,7 +88,9 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
-      body: ProductGrid(_showOnlyFavorites),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ProductGrid(_showOnlyFavorites),
       drawer: AppDrawer(),
     );
   }
