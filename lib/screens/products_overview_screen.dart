@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/cart.dart';
+import '../providers/products.dart';
 
 import '../screens/cart_screen.dart';
 
@@ -18,6 +19,17 @@ class ProductsOverviewScreen extends StatefulWidget {
 
 class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   bool _showOnlyFavorites = false;
+
+  @override
+  void initState() {
+    // Hack workaround the problem that we cannot access Provider.of() in initState
+    // (since then we would receive an error "dependOnInherited...() called before constructuor/initState completed.")
+    // by delaying the call for zero duration that schedules it right after the initState finishes.
+    Future.delayed(Duration.zero).then((_) {
+      Provider.of<Products>(context).fetchAndSetProducts();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

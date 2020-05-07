@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,8 @@ import 'package:http/http.dart' as http;
 import '../providers/product.dart';
 
 class Products with ChangeNotifier {
-  List<Product> _items = [
+  List<Product> _items = [];
+  /*[
     Product(
       id: 'p1',
       title: 'Red Shirt',
@@ -39,7 +41,7 @@ class Products with ChangeNotifier {
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
-  ];
+  ];*/
 
   List<Product> get items {
     return [..._items];
@@ -53,8 +55,18 @@ class Products with ChangeNotifier {
     return _items.firstWhere((item) => item.id == productId);
   }
 
+  Future<void> fetchAndSetProducts() async {
+    const url = 'https://consumify-app.firebaseio.com/products.json';
+    try {
+      final response = await http.get(url);
+      print(response);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   Future<void> addProduct(Product item) async {
-    const url = 'https://consumify-app.firebaseio.com/products';//.json';
+    const url = 'https://consumify-app.firebaseio.com/products.json';
     try {
       final response = await http.post(
         url,
