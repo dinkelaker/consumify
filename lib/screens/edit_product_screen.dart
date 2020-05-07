@@ -268,7 +268,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
-  void _saveForm() {
+  void _saveForm() async {
     // only save form if valid
     final isValid = _formGlobalKey.currentState.validate();
     if (!isValid) return;
@@ -279,23 +279,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _isOperationInProgress = true;
     });
 
-    // print(_editedProduct.id);
-    // print(_editedProduct.title);
-    // print(_editedProduct.price);
-    // print(_editedProduct.description);
-    // print(_editedProduct.imageUrl);
     if (_editedProduct.id != null) {
       Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
-      Navigator.of(context).pop();
-      setState(() {
-        _isOperationInProgress = false;
-      });
     } else {
-      Provider.of<Products>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((error) {
-        return showDialog(
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog(
           context: context,
           builder: (ctxt) => AlertDialog(
             title: Text('An error occurred on the backend'),
@@ -305,29 +297,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   child: Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop();
-                    //throw Exception('Skip closing form');
                   })
             ],
           ),
-        ).then((_) {
-          // the error handler must return void to fulfill 
-          // the outer return type 
-          return;
-        });
-      }).then((result) {
-        print('accepting');
-        setState(() {
-          _isOperationInProgress = false;
-        });
-        Navigator.of(context).pop();
-      });
-      //uncommented to not close form
-      // .catchError((error) {
-      //   setState(() {
-      //     _isOperationInProgress = false;
-      //   });
-      //   print('skip closing from since there was an error');
-      // });
+        );
+      }
     }
+
+    setState(() {
+      _isOperationInProgress = false;
+    });
+    Navigator.of(context).pop();
   }
 }
