@@ -131,6 +131,25 @@ class Products with ChangeNotifier {
     }
   }
 
+  Future<void> updateProductFavoriteStatus(String id, bool isFavorite) async {
+    var productIndex = _items.indexWhere((prod) => prod.id == id);
+    bool previousFavoriteState = _items[productIndex].isFavorite;
+    if (productIndex >= 0) {
+      _items[productIndex].isFavorite = isFavorite;
+      notifyListeners();
+
+      final url = 'https://consumify-app.firebaseio.com/products/$id.json';
+      http.patch(url,
+          body: json.encode({
+            'isFavorite': isFavorite,
+          }));
+    } else {
+      notifyListeners();
+      _items[productIndex].isFavorite = previousFavoriteState;
+      throw new Exception("Illegal state: not reachable.");
+    }
+  }
+
   Future<void> removeProduct(String id) async {
     final url = 'https://consumify-app.firebaseio.com/products/$id.json';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
@@ -143,7 +162,8 @@ class Products with ChangeNotifier {
       // rollback deleting the product in error case
       _items.insert(existingProductIndex, productBackupForOptimiticUpdate);
       notifyListeners();
-      throw new HttpException('Could not delete product on server. Http error code: ${response.statusCode}');
+      throw new HttpException(
+          'Could not delete product on server. Http error code: ${response.statusCode}');
     }
     // clear backup on success
     productBackupForOptimiticUpdate = null;

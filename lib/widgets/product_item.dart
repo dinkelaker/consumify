@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/cart.dart';
 import '../providers/product.dart';
+import '../providers/products.dart';
 
 import '../screens/product_details_screen.dart';
 
@@ -10,6 +11,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Product product = Provider.of<Product>(context);
+    Products products = Provider.of<Products>(context);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
@@ -30,7 +32,10 @@ class ProductItem extends StatelessWidget {
                 color: Theme.of(context).accentColor,
               ),
             ),
-            onPressed: product.toggleFavoriteStatus,
+            onPressed: () async {
+              product.toggleFavoriteStatus();
+              await products.updateProductFavoriteStatus(product.id, product.isFavorite);
+            },
           ),
           title: Text(
             product.title,
@@ -42,7 +47,7 @@ class ProductItem extends StatelessWidget {
               onPressed: () {
                 cartData.addItem(product.id, product.price, product.title);
                 // Before showing new SnackBar hide old SnackBars.
-                Scaffold.of(context).hideCurrentSnackBar(); 
+                Scaffold.of(context).hideCurrentSnackBar();
                 // Access nearest scaffold in widget tree outside of this widget to show SnackBar.
                 Scaffold.of(context).showSnackBar(
                   SnackBar(
