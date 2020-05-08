@@ -279,34 +279,34 @@ class _EditProductScreenState extends State<EditProductScreen> {
       _isOperationInProgress = true;
     });
 
-    if (_editedProduct.id != null) {
-      Provider.of<Products>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
-    } else {
-      try {
+    try {
+      if (_editedProduct.id != null) {
+        await Provider.of<Products>(context, listen: false)
+            .updateProduct(_editedProduct.id, _editedProduct);
+      } else {
         await Provider.of<Products>(context, listen: false)
             .addProduct(_editedProduct);
-      } catch (error) {
-        await showDialog(
-          context: context,
-          builder: (ctxt) => AlertDialog(
-            title: Text('An error occurred on the backend'),
-            content: Text('Error: $error'),
-            actions: <Widget>[
-              FlatButton(
-                  child: Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  })
-            ],
-          ),
-        );
       }
+    } catch (error) {
+      await showDialog(
+        context: context,
+        builder: (ctxt) => AlertDialog(
+          title: Text('An error occurred on the backend'),
+          content: Text('Error: $error'),
+          actions: <Widget>[
+            FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                })
+          ],
+        ),
+      );
+    } finally {
+      setState(() {
+        _isOperationInProgress = false;
+      });
+      Navigator.of(context).pop();
     }
-
-    setState(() {
-      _isOperationInProgress = false;
-    });
-    Navigator.of(context).pop();
   }
 }

@@ -112,9 +112,17 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product updatedProduct) {
+  Future<void> updateProduct(String id, Product updatedProduct) async {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
+      final url = 'https://consumify-app.firebaseio.com/products/$id.json';
+      http.patch(url,
+          body: json.encode({
+            'title': updatedProduct.title,
+            'description': updatedProduct.description,
+            'price': updatedProduct.price,
+            'imageUrl': updatedProduct.imageUrl,
+          }));
       _items[prodIndex] = updatedProduct;
       notifyListeners();
     } else {
@@ -123,7 +131,18 @@ class Products with ChangeNotifier {
   }
 
   void removeProduct(String id) {
-    _items.removeWhere((prod) => prod.id == id);
+    final url = 'https://consumify-app.firebaseio.com/products/$id.json';
+    final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
+    // backup product before deleting it
+    var productBackupForOptimiticUpdate = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
+    http.delete(url).then((_) {
+      // clear backup on success
+      productBackupForOptimiticUpdate = null;
+    }).catchError((_) {
+      // rollback deleting the product in error case
+      _items.insert(existingProductIndex, productBackupForOptimiticUpdate);
+    });
     notifyListeners();
   }
 }
