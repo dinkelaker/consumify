@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
+import '../models/http_exception.dart';
 
 import '../providers/product.dart';
 
@@ -136,10 +137,14 @@ class Products with ChangeNotifier {
     // backup product before deleting it
     var productBackupForOptimiticUpdate = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
-    http.delete(url).then((_) {
+    http.delete(url).then((response) {
+      if (response.statusCode >= 400) {
+        throw new HttpException('Could not delete product on server. Http error code: ${response.statusCode}');
+      }
       // clear backup on success
       productBackupForOptimiticUpdate = null;
-    }).catchError((_) {
+    }).catchError((error) {
+      print(error);
       // rollback deleting the product in error case
       _items.insert(existingProductIndex, productBackupForOptimiticUpdate);
     });
