@@ -42,8 +42,8 @@ class CartScreen extends StatelessWidget {
                     FlatButton(
                       child: Text('ORDER NOW'),
                       textColor: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        Provider.of<Orders>(context).addOrder(
+                      onPressed: () async {
+                        await Provider.of<Orders>(context).addOrder(
                             cartData.items.values.toList(),
                             cartData.totalAmount);
                         cartData.clear();
