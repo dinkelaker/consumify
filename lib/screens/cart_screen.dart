@@ -7,8 +7,15 @@ import '../providers/orders.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/cart_item.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   static const routeName = '/cart';
+
+  @override
+  _CartScreenState createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  bool _isOperationInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,16 +46,24 @@ class CartScreen extends StatelessWidget {
                           )),
                       backgroundColor: Theme.of(context).primaryColor,
                     ),
-                    FlatButton(
-                      child: Text('ORDER NOW'),
-                      textColor: Theme.of(context).primaryColor,
-                      onPressed: () async {
-                        await Provider.of<Orders>(context).addOrder(
-                            cartData.items.values.toList(),
-                            cartData.totalAmount);
-                        cartData.clear();
-                      },
-                    ),
+                    !_isOperationInProgress
+                        ? FlatButton(
+                            child: Text('ORDER NOW'),
+                            textColor: Theme.of(context).primaryColor,
+                            onPressed: () async {
+                              setState(() {
+                                _isOperationInProgress = true;
+                              });
+                              await Provider.of<Orders>(context).addOrder(
+                                  cartData.items.values.toList(),
+                                  cartData.totalAmount);
+                              cartData.clear();
+                              setState(() {
+                                _isOperationInProgress = false;
+                              });
+                            },
+                          )
+                        : CircularProgressIndicator(),
                   ],
                 ),
               ),
