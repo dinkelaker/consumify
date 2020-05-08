@@ -27,6 +27,56 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  Future<void> fetchAndSetOrders() async {
+    const url = 'https://consumify-app.firebaseio.com/orders.json';
+    try {
+      final response = await http.get(url);
+      print(response);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<OrderItem> loadedOrders = [];
+      await Future.forEach<MapEntry<String, dynamic>>(extractedData.entries, (MapEntry<String, dynamic> orderEntry) async {
+        final orderId = orderEntry.key;
+        final products = await _fetchOrderProducts(orderId);
+        
+        var orderItem = OrderItem(
+          id: orderId,
+          dateTime: DateTime.parse(orderEntry.value['dateTime']),
+          amount: orderEntry.value['amount'],
+          products: products,
+        );
+
+        loadedOrders.add(
+          orderItem,
+        );
+      });
+
+      _orders = loadedOrders;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<List<CartItem>> _fetchOrderProducts(String orderId) async {
+    var url =
+        'https://consumify-app.firebaseio.com/orders/$orderId/products.json';
+    final response = await http.get(url);
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    final List<CartItem> loadedOrders = [];
+    extractedData.forEach((cartItemId, cartItemData) {
+      loadedOrders.add(
+        CartItem(
+          id: cartItemData['productId'],
+          title: cartItemData['title'],
+          price: cartItemData['price'],
+          quantity: cartItemData['quantity'],
+        ),
+      );
+    });
+
+    return loadedOrders;
+  }
+
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     const url = 'https://consumify-app.firebaseio.com/orders.json';
     var now = DateTime.now();
@@ -57,7 +107,8 @@ class Orders with ChangeNotifier {
     }
   }
 
-  Future<void> addProductsToOrder(String orderId, List<CartItem> cartProducts) async {
+  Future<void> addProductsToOrder(
+      String orderId, List<CartItem> cartProducts) async {
     final url =
         'https://consumify-app.firebaseio.com/orders/$orderId/products.json';
 
@@ -65,7 +116,7 @@ class Orders with ChangeNotifier {
       await http.post(
         url,
         body: json.encode({
-          'id': cartItem.id,
+          'productId': cartItem.id,
           'title': cartItem.title,
           'quantity': cartItem.quantity,
           'price': cartItem.price,
