@@ -39,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     Spacer(),
                     Chip(
-                      label: Text('\$${cartData.totalAmount}',
+                      label: Text('\$${cartData.totalAmount.toStringAsFixed(2)}',
                           style: TextStyle(
                             color:
                                 Theme.of(context).primaryTextTheme.title.color,
