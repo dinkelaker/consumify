@@ -34,15 +34,22 @@ class Orders with ChangeNotifier {
       print(response);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<OrderItem> loadedOrders = [];
-      await Future.forEach<MapEntry<String, dynamic>>(extractedData.entries, (MapEntry<String, dynamic> orderEntry) async {
-        final orderId = orderEntry.key;
-        final products = await _fetchOrderProducts(orderId);
-        
+      if (extractedData == null) {
+        return;
+      }
+      extractedData.forEach((orderId, orderData) {
         var orderItem = OrderItem(
           id: orderId,
-          dateTime: DateTime.parse(orderEntry.value['dateTime']),
-          amount: orderEntry.value['amount'],
-          products: products,
+          dateTime: DateTime.parse(orderData['dateTime']),
+          amount: orderData['amount'],
+          products: (orderData['products'] as List<dynamic>).map(
+            (item) => CartItem(
+              id: item['id'],
+              title: item['title'],
+              price: item['price'],
+              quantity: item['quantity'],
+            ),
+          ).toList(),
         );
 
         loadedOrders.add(
@@ -57,26 +64,6 @@ class Orders with ChangeNotifier {
     }
   }
 
-  Future<List<CartItem>> _fetchOrderProducts(String orderId) async {
-    var url =
-        'https://consumify-app.firebaseio.com/orders/$orderId/products.json';
-    final response = await http.get(url);
-    final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    final List<CartItem> loadedOrders = [];
-    extractedData.forEach((cartItemId, cartItemData) {
-      loadedOrders.add(
-        CartItem(
-          id: cartItemData['productId'],
-          title: cartItemData['title'],
-          price: cartItemData['price'],
-          quantity: cartItemData['quantity'],
-        ),
-      );
-    });
-
-    return loadedOrders;
-  }
-
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     const url = 'https://consumify-app.firebaseio.com/orders.json';
     var now = DateTime.now();
@@ -86,12 +73,18 @@ class Orders with ChangeNotifier {
         url,
         body: json.encode({
           'amount': total,
-          'dateTime': now.toString(),
+          'dateTime': now.toIso8601String(),
+          'products': cartProducts
+              .map((product) => {
+                    'id': product.id,
+                    'title': product.title,
+                    'quantity': product.quantity,
+                    'price': product.price,
+                  })
+              .toList(),
         }),
       );
       var orderId = json.decode(response.body)['name'];
-
-      await addProductsToOrder(orderId, cartProducts);
 
       var orderItem = OrderItem(
         id: orderId,
@@ -104,24 +97,6 @@ class Orders with ChangeNotifier {
     } catch (error) {
       _orders.removeAt(0);
       notifyListeners();
-    }
-  }
-
-  Future<void> addProductsToOrder(
-      String orderId, List<CartItem> cartProducts) async {
-    final url =
-        'https://consumify-app.firebaseio.com/orders/$orderId/products.json';
-
-    for (var cartItem in cartProducts) {
-      await http.post(
-        url,
-        body: json.encode({
-          'productId': cartItem.id,
-          'title': cartItem.title,
-          'quantity': cartItem.quantity,
-          'price': cartItem.price,
-        }),
-      );
     }
   }
 }

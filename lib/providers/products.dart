@@ -60,9 +60,12 @@ class Products with ChangeNotifier {
     const url = 'https://consumify-app.firebaseio.com/products.json';
     try {
       final response = await http.get(url);
-      print(response);
+      print(response.body);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
+      if (extractedData == null) {
+        return;
+      }
       extractedData.forEach((productId, prodData) {
         loadedProducts.add(
           Product(
