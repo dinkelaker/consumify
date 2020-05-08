@@ -14,47 +14,34 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  bool _isDataFetchedFromServer = false;
-  bool _isLoading = true;
-
-  @override
-  void didChangeDependencies() {
-    // Only fetch data once, since didChangeDependencies is called multiple times
-    // whenever widget tree must be rerendered.
-    if (!_isDataFetchedFromServer) {
-      setState(() {
-        _isLoading = true;
-      });
-      Provider.of<Orders>(context).fetchAndSetOrders().then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-      _isDataFetchedFromServer = true;
-    }
-    super.didChangeDependencies();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<Orders>(
-      builder: (_, ordersData, __) => Scaffold(
-        appBar: AppBar(
-          title: Text('Your Orders'),
-        ),
-        body: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : ordersData.orders.length > 0
-                ? ListView.builder(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Your Orders'),
+      ),
+      body: FutureBuilder(
+          future:
+              Provider.of<Orders>(context, listen: false).fetchAndSetOrders(),
+          builder: (ctxt, dataSnapshot) {
+            if (dataSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              if (dataSnapshot.error == null) {
+                return Consumer<Orders>(
+                  builder: (ctxt, ordersData, child) => ListView.builder(
                     itemCount: ordersData.orders.length,
                     itemBuilder: (ctxt, index) =>
                         OrderItem(ordersData.orders[index]),
-                  )
-                : Center(
-                    child: Text('No orders placed yet!'),
                   ),
-        drawer: AppDrawer(),
-      ),
+                );
+              } else {
+                return Center(
+                    child: Text('An error occurred: ${dataSnapshot.error}'));
+              }
+            }
+          }),
+      drawer: AppDrawer(),
     );
   }
 }
