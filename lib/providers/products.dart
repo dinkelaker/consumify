@@ -131,23 +131,21 @@ class Products with ChangeNotifier {
     }
   }
 
-  void removeProduct(String id) {
+  Future<void> removeProduct(String id) async {
     final url = 'https://consumify-app.firebaseio.com/products/$id.json';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     // backup product before deleting it
     var productBackupForOptimiticUpdate = _items[existingProductIndex];
     _items.removeAt(existingProductIndex);
-    http.delete(url).then((response) {
-      if (response.statusCode >= 400) {
-        throw new HttpException('Could not delete product on server. Http error code: ${response.statusCode}');
-      }
-      // clear backup on success
-      productBackupForOptimiticUpdate = null;
-    }).catchError((error) {
-      print(error);
+    final response = await http.delete(url);
+    notifyListeners();
+    if (response.statusCode >= 400) {
       // rollback deleting the product in error case
       _items.insert(existingProductIndex, productBackupForOptimiticUpdate);
-    });
-    notifyListeners();
+      notifyListeners();
+      throw new HttpException('Could not delete product on server. Http error code: ${response.statusCode}');
+    }
+    // clear backup on success
+    productBackupForOptimiticUpdate = null;
   }
 }
