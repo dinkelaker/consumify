@@ -2,9 +2,10 @@ import 'package:consumify/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './providers/products.dart';
+import './providers/auth.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
+import './providers/products.dart';
 
 import './screens/auth_screen.dart';
 import './screens/cart_screen.dart';
@@ -24,6 +25,7 @@ class ConsumifyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => Products()),
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProvider(create: (_) => Orders()),
+        ChangeNotifierProvider(create: (_) => Auth()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
