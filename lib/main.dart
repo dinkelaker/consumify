@@ -6,6 +6,7 @@ import './providers/products.dart';
 import './providers/cart.dart';
 import './providers/orders.dart';
 
+import './screens/auth_screen.dart';
 import './screens/cart_screen.dart';
 import './screens/edit_product_screen.dart';
 import './screens/products_overview_screen.dart';
@@ -31,8 +32,9 @@ class ConsumifyApp extends StatelessWidget {
           accentColor: Colors.deepOrange,
           fontFamily: 'Lato',
         ),
-        home: ProductsOverviewScreen(),
+        home: AuthScreen(),
         routes: {
+          ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
           ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
           CartScreen.routeName: (_) => CartScreen(),
           EditProductScreen.routeName: (_) => EditProductScreen(),
