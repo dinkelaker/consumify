@@ -22,27 +22,41 @@ class ConsumifyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Products()),
-        ChangeNotifierProvider(create: (_) => Cart()),
-        ChangeNotifierProvider(create: (_) => Orders()),
         ChangeNotifierProvider(create: (_) => Auth()),
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.purple,
-          accentColor: Colors.deepOrange,
-          fontFamily: 'Lato',
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (ctxt) => null,
+          update: (context, auth, previousProducts) =>
+              (previousProducts == null)
+                  ? Products(auth.token, [])
+                  : Products(auth.token, previousProducts.items),
         ),
-        home: AuthScreen(),
-        routes: {
-          ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
-          ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
-          CartScreen.routeName: (_) => CartScreen(),
-          EditProductScreen.routeName: (_) => EditProductScreen(),
-          OrdersScreen.routeName: (_) => OrdersScreen(),
-          UserProductsScreen.routeName: (_) => UserProductsScreen(),
-        },
+        ChangeNotifierProvider(create: (_) => Cart()),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (ctxt) => null,
+          update: (context, auth, previousOrders) =>
+              (previousOrders == null)
+                  ? Orders(auth.token, [])
+                  : Orders(auth.token, previousOrders.orders),
+        ),
+      ],
+      child: Consumer<Auth>(
+        builder: (ctxt, auth, _) => MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.purple,
+            accentColor: Colors.deepOrange,
+            fontFamily: 'Lato',
+          ),
+          home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+          routes: {
+            ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
+            ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
+            CartScreen.routeName: (_) => CartScreen(),
+            EditProductScreen.routeName: (_) => EditProductScreen(),
+            OrdersScreen.routeName: (_) => OrdersScreen(),
+            UserProductsScreen.routeName: (_) => UserProductsScreen(),
+          },
+        ),
       ),
     );
   }

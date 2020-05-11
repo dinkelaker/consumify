@@ -8,6 +8,8 @@ import '../models/http_exception.dart';
 import '../providers/product.dart';
 
 class Products with ChangeNotifier {
+  final String _authToken;
+
   List<Product> _items = [];
   /*[
     Product(
@@ -44,6 +46,8 @@ class Products with ChangeNotifier {
     ),
   ];*/
 
+  Products(this._authToken, this._items);
+
   List<Product> get items {
     return [..._items];
   }
@@ -57,12 +61,15 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    const url = 'https://consumify-app.firebaseio.com/products.json';
+    final url = 'https://consumify-app.firebaseio.com/products.json?auth=$_authToken';
     try {
       final response = await http.get(url);
       print(response.body);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
+      if (extractedData == null) {
+        return;
+      }
       if (extractedData == null) {
         return;
       }
@@ -86,7 +93,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product item) async {
-    const url = 'https://consumify-app.firebaseio.com/products.json';
+    final url = 'https://consumify-app.firebaseio.com/products.json?auth=$_authToken';
     try {
       final response = await http.post(
         url,
@@ -119,7 +126,7 @@ class Products with ChangeNotifier {
   Future<void> updateProduct(String id, Product updatedProduct) async {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
-      final url = 'https://consumify-app.firebaseio.com/products/$id.json';
+      final url = 'https://consumify-app.firebaseio.com/products/$id.json?auth=$_authToken';
       http.patch(url,
           body: json.encode({
             'title': updatedProduct.title,
@@ -141,7 +148,7 @@ class Products with ChangeNotifier {
       _items[productIndex].isFavorite = isFavorite;
       notifyListeners();
 
-      final url = 'https://consumify-app.firebaseio.com/products/$id.json';
+      final url = 'https://consumify-app.firebaseio.com/products/$id.json?auth=$_authToken';
       http.patch(url,
           body: json.encode({
             'isFavorite': isFavorite,
@@ -154,7 +161,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> removeProduct(String id) async {
-    final url = 'https://consumify-app.firebaseio.com/products/$id.json';
+    final url = 'https://consumify-app.firebaseio.com/products/$id.json?auth=$_authToken';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     // backup product before deleting it
     var productBackupForOptimiticUpdate = _items[existingProductIndex];
