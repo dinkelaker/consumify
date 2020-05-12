@@ -54,7 +54,7 @@ class _CartScreenState extends State<CartScreen> {
                               setState(() {
                                 _isOperationInProgress = true;
                               });
-                              await Provider.of<Orders>(context).addOrder(
+                              await Provider.of<Orders>(context, listen: false).addOrder(
                                   cartData.items.values.toList(),
                                   cartData.totalAmount);
                               cartData.clear();

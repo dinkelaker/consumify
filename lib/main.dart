@@ -35,8 +35,8 @@ class ConsumifyApp extends StatelessWidget {
           create: (ctxt) => null,
           update: (context, auth, previousOrders) =>
               (previousOrders == null)
-                  ? Orders(auth.token, [])
-                  : Orders(auth.token, previousOrders.orders),
+                  ? Orders(auth.token, auth.user, [])
+                  : Orders(auth.token, auth.user, previousOrders.orders),
         ),
       ],
       child: Consumer<Auth>(

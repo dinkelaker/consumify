@@ -24,6 +24,10 @@ class Auth with ChangeNotifier {
     return null;
   }
 
+  String get user {
+    return _userId;
+  }
+
   Future _autheticate(String email, String password, String urlSegment) async {
     var url =
         "https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=$FIREBASE_WEB_API_KEY";
@@ -46,7 +50,7 @@ class Auth with ChangeNotifier {
     _userId = responseData['localId'];
     _expiryDate = DateTime.now().add(
       Duration(
-        seconds: int.parse(responseData['expiresIn']),
+        seconds: 20,//int.parse(responseData['expiresIn']),
       ),
     );
     print('${DateTime.now()} : user \'$_userId\' successfully logged in.');
@@ -59,5 +63,12 @@ class Auth with ChangeNotifier {
 
   Future<void> signup(String email, String password) async {
     return await _autheticate(email, password, 'signUp');
+  }
+
+  void logout() {
+    _token = null;
+    _userId = null;
+    _expiryDate = null;
+    notifyListeners();
   }
 }
