@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:consumify/models/http_exception.dart';
@@ -10,6 +11,7 @@ class Auth with ChangeNotifier {
   String _token;
   DateTime _expiryDate;
   String _userId;
+  Timer _authTimer;
 
   bool get isAuth {
     return (token != null);
@@ -50,10 +52,11 @@ class Auth with ChangeNotifier {
     _userId = responseData['localId'];
     _expiryDate = DateTime.now().add(
       Duration(
-        seconds: 20,//int.parse(responseData['expiresIn']),
+        seconds: int.parse(responseData['expiresIn']),
       ),
     );
     print('${DateTime.now()} : user \'$_userId\' successfully logged in.');
+    _autoLogout();
     notifyListeners();
   }
 
@@ -72,4 +75,12 @@ class Auth with ChangeNotifier {
     notifyListeners();
   }
 
+  void _autoLogout() {
+    if (_authTimer != null) {
+      // cancel existing timers
+      _authTimer.cancel();
+    }
+    final timeToExpiry = _expiryDate.difference(DateTime.now()).inSeconds;
+    _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
+  }
 }
