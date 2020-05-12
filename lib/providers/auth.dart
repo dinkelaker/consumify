@@ -71,4 +71,5 @@ class Auth with ChangeNotifier {
     _expiryDate = null;
     notifyListeners();
   }
+
 }
