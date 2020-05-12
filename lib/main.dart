@@ -33,10 +33,9 @@ class ConsumifyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProxyProvider<Auth, Orders>(
           create: (ctxt) => null,
-          update: (context, auth, previousOrders) =>
-              (previousOrders == null)
-                  ? Orders(auth.token, auth.user, [])
-                  : Orders(auth.token, auth.user, previousOrders.orders),
+          update: (context, auth, previousOrders) => (previousOrders == null)
+              ? Orders(auth.token, auth.user, [])
+              : Orders(auth.token, auth.user, previousOrders.orders),
         ),
       ],
       child: Consumer<Auth>(
@@ -47,7 +46,20 @@ class ConsumifyApp extends StatelessWidget {
             accentColor: Colors.deepOrange,
             fontFamily: 'Lato',
           ),
-          home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProductsOverviewScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (ctxt, authResultSnapshot) =>
+                      authResultSnapshot.connectionState !=
+                              ConnectionState.waiting
+                          ? AuthScreen()
+                          : Scaffold(
+                              body: Center(
+                                child: Text('Loading...'),
+                              ),
+                            ),
+                ),
           routes: {
             ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
             ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
