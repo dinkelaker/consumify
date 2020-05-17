@@ -17,7 +17,11 @@ class ProductItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
-          child: Image.network(product.imageUrl, fit: BoxFit.cover),
+          child: FadeInImage(
+            placeholder: AssetImage('assets/images/product-placeholder.png'),
+            image: NetworkImage(product.imageUrl),
+            fit: BoxFit.cover,
+          ),
           onTap: () {
             Navigator.of(context).pushNamed(ProductDetailsScreen.routeName,
                 arguments: product.id);
@@ -34,7 +38,8 @@ class ProductItem extends StatelessWidget {
             ),
             onPressed: () async {
               product.toggleFavoriteStatus();
-              await products.updateProductFavoriteStatus(product.id, product.isFavorite);
+              await products.updateProductFavoriteStatus(
+                  product.id, product.isFavorite);
             },
           ),
           title: Text(
