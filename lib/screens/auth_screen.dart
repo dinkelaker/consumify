@@ -133,9 +133,6 @@ class _AuthCardState extends State<AuthCard>
       //curve: Curves.easeIn,
       curve: Curves.fastOutSlowIn,
     ));
-
-    // set up listener, so that the screen is redrawn whenever the animation updates
-    _heightAnimation.addListener(() => setState(() {}));
   }
 
   void _showDialog(String message) {
@@ -221,11 +218,15 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      child: Container(
-        height: _heightAnimation.value.height,
-        constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
-        width: deviceSize.width * 0.75,
-        padding: EdgeInsets.all(16.0),
+      child: AnimatedBuilder(
+        animation: _heightAnimation,
+        builder: (ctxt, child) => Container(
+          height: _heightAnimation.value.height,
+          constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
+          width: deviceSize.width * 0.75,
+          padding: EdgeInsets.all(16.0),
+          child: child,
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
