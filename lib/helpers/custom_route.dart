@@ -9,8 +9,30 @@ class CustomRoute<T> extends MaterialPageRoute<T> {
       Animation<double> secondaryAnimation, Widget child) {
     if (settings.isInitialRoute) {
       // Do not animate the first screen
-      return child; 
+      return child;
     }
-    return FadeTransition(opacity: animation, child: child);
+    return FadeTransition(
+      opacity: animation,
+      child: child,
+    );
+  }
+}
+
+class CustomPageTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+      PageRoute<T> route,
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
+    if (route.settings.isInitialRoute) {
+      // Do not animate the first screen
+      return child;
+    }
+    return FadeTransition(
+      opacity: animation,
+      child: child,
+    );
   }
 }
